@@ -1,19 +1,25 @@
 package com.hodol.han.samples.backend.shop.service;
 
-import com.hodol.han.samples.backend.shop.entity.Product;
-import com.hodol.han.samples.backend.shop.repository.ProductRepository;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import com.hodol.han.samples.backend.shop.entity.Product;
+import com.hodol.han.samples.backend.shop.repository.ProductRepository;
 
 class ProductServiceTest {
 
