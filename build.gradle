@@ -30,20 +30,6 @@ tasks.named('test') {
   useJUnitPlatform()
 }
 
-sourceSets {
-  main {
-    // Align output directories with VS Code's default (bin/main) to ensure
-    // consistency between Gradle builds and IDE operations.
-    output.resourcesDir = file("bin/main")
-    java.destinationDirectory = file("bin/main")
-  }
-  test {
-    // Set test classes output to VS Code's default (bin/test) for seamless
-    // integration with IDE testing tools.
-    java.destinationDirectory = file("bin/test")
-  }
-}
-
 tasks.withType(JavaCompile) {
   // // Uncomment this if you plan explicit parameter names
   // // (i.e. @PathVariable("..."))
