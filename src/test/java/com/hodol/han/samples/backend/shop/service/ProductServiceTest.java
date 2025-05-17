@@ -86,4 +86,56 @@ class ProductServiceTest {
 
     verify(productRepository, times(1)).deleteById(productId);
   }
+
+  @Test
+  void testUpdateProduct() {
+    Product existing = new Product();
+    existing.setId(1L);
+    existing.setName("Old");
+    existing.setDescription("Old desc");
+    existing.setPrice(100.0);
+    existing.setStock(10);
+
+    Product update = new Product();
+    update.setName("New");
+    update.setDescription("New desc");
+    update.setPrice(200.0);
+    update.setStock(20);
+
+    when(productRepository.findById(1L)).thenReturn(Optional.of(existing));
+    when(productRepository.save(existing)).thenReturn(existing);
+
+    Optional<Product> result = productService.updateProduct(1L, update);
+
+    assertTrue(result.isPresent());
+    assertEquals("New", result.get().getName());
+    assertEquals("New desc", result.get().getDescription());
+    assertEquals(200.0, result.get().getPrice());
+    assertEquals(20, result.get().getStock());
+  }
+
+  @Test
+  void testUpdateProductPartial() {
+    Product existing = new Product();
+    existing.setId(1L);
+    existing.setName("Old");
+    existing.setDescription("Old desc");
+    existing.setPrice(100.0);
+    existing.setStock(10);
+
+    Product patch = new Product();
+    patch.setName("Patched"); // Only name is patched
+    // description, price, stock remain null
+
+    when(productRepository.findById(1L)).thenReturn(Optional.of(existing));
+    when(productRepository.save(existing)).thenReturn(existing);
+
+    Optional<Product> result = productService.updateProductPartial(1L, patch);
+
+    assertTrue(result.isPresent());
+    assertEquals("Patched", result.get().getName());
+    assertEquals("Old desc", result.get().getDescription());
+    assertEquals(100.0, result.get().getPrice());
+    assertEquals(10, result.get().getStock());
+  }
 }

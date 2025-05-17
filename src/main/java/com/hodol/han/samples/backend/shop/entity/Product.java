@@ -16,9 +16,9 @@ public class Product {
 
   private String description;
 
-  private double price;
+  private Double price;
 
-  private int stock;
+  private Integer stock;
 
   // Getters and Setters
   public Long getId() {
@@ -45,19 +45,19 @@ public class Product {
     this.description = description;
   }
 
-  public double getPrice() {
+  public Double getPrice() {
     return price;
   }
 
-  public void setPrice(double price) {
+  public void setPrice(Double price) {
     this.price = price;
   }
 
-  public int getStock() {
+  public Integer getStock() {
     return stock;
   }
 
-  public void setStock(int stock) {
+  public void setStock(Integer stock) {
     this.stock = stock;
   }
 }

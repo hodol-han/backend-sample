@@ -8,7 +8,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -101,5 +103,95 @@ class ProductControllerTest {
     mockMvc.perform(delete("/api/products/1")).andExpect(status().isNoContent());
 
     verify(productService, times(1)).deleteProduct(1L);
+  }
+
+  @Test
+  void testUpdateProduct() throws Exception {
+    Product updated = new Product();
+    updated.setId(1L);
+    updated.setName("Updated Product");
+    updated.setDescription("Updated Description");
+    updated.setPrice(2000.0);
+    updated.setStock(5);
+
+    when(productService.updateProduct(any(Long.class), any(Product.class)))
+        .thenReturn(Optional.of(updated));
+
+    mockMvc
+        .perform(
+            put("/api/products/1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(
+                    """
+                    {
+                        "name": "Updated Product",
+                        "description": "Updated Description",
+                        "price": 2000.0,
+                        "stock": 5
+                    }
+                    """))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.name").value("Updated Product"))
+        .andExpect(jsonPath("$.description").value("Updated Description"))
+        .andExpect(jsonPath("$.price").value(2000.0))
+        .andExpect(jsonPath("$.stock").value(5));
+  }
+
+  @Test
+  void testUpdateProductPartial() throws Exception {
+    Product partiallyUpdated = new Product();
+    partiallyUpdated.setId(1L);
+    partiallyUpdated.setName("Patched Product");
+    partiallyUpdated.setDescription(null); // unchanged
+    partiallyUpdated.setPrice(0.0); // unchanged
+    partiallyUpdated.setStock(0); // unchanged
+
+    when(productService.updateProductPartial(any(Long.class), any(Product.class)))
+        .thenReturn(Optional.of(partiallyUpdated));
+
+    mockMvc
+        .perform(
+            patch("/api/products/1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"name\":\"Patched Product\"}"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.name").value("Patched Product"));
+  }
+
+  @Test
+  void testUpdateProductPartialWithNulls() throws Exception {
+    Product partiallyUpdated = new Product();
+    partiallyUpdated.setId(1L);
+    partiallyUpdated.setName(null);
+    partiallyUpdated.setDescription(null);
+    partiallyUpdated.setPrice(null);
+    partiallyUpdated.setStock(null);
+
+    when(productService.updateProductPartial(any(Long.class), any(Product.class)))
+        .thenReturn(Optional.of(partiallyUpdated));
+
+    mockMvc
+        .perform(patch("/api/products/1").contentType(MediaType.APPLICATION_JSON).content("{}"))
+        .andExpect(status().isOk());
+  }
+
+  @Test
+  void testUpdateProductPartialWithZero() throws Exception {
+    Product partiallyUpdated = new Product();
+    partiallyUpdated.setId(1L);
+    partiallyUpdated.setPrice(0.0);
+    partiallyUpdated.setStock(0);
+
+    when(productService.updateProductPartial(any(Long.class), any(Product.class)))
+        .thenReturn(Optional.of(partiallyUpdated));
+
+    mockMvc
+        .perform(
+            patch("/api/products/1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"price\":0.0,\"stock\":0}"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.price").value(0.0))
+        .andExpect(jsonPath("$.stock").value(0));
   }
 }

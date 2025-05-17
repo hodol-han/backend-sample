@@ -30,4 +30,38 @@ public class ProductService {
   public void deleteProduct(Long id) {
     productRepository.deleteById(id);
   }
+
+  public Optional<Product> updateProduct(Long id, Product product) {
+    return productRepository
+        .findById(id)
+        .map(
+            existingProduct -> {
+              existingProduct.setName(product.getName());
+              existingProduct.setDescription(product.getDescription());
+              existingProduct.setPrice(product.getPrice());
+              existingProduct.setStock(product.getStock());
+              return productRepository.save(existingProduct);
+            });
+  }
+
+  public Optional<Product> updateProductPartial(Long id, Product product) {
+    return productRepository
+        .findById(id)
+        .map(
+            existingProduct -> {
+              if (product.getName() != null) {
+                existingProduct.setName(product.getName());
+              }
+              if (product.getDescription() != null) {
+                existingProduct.setDescription(product.getDescription());
+              }
+              if (product.getPrice() != null) {
+                existingProduct.setPrice(product.getPrice());
+              }
+              if (product.getStock() != null) {
+                existingProduct.setStock(product.getStock());
+              }
+              return productRepository.save(existingProduct);
+            });
+  }
 }
