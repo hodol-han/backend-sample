@@ -15,6 +15,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.hodol.han.samples.backend.shop.dto.ProductPatchRequest;
 import com.hodol.han.samples.backend.shop.dto.ProductRequest;
 import com.hodol.han.samples.backend.shop.entity.Product;
 import com.hodol.han.samples.backend.shop.mapper.ProductMapper;
@@ -165,9 +166,7 @@ class ProductControllerTest {
 
     when(productService.updateProductPartial(any(Long.class), any(Product.class)))
         .thenReturn(Optional.of(partiallyUpdated));
-    when(productMapper.mapToProduct(
-            any(com.hodol.han.samples.backend.shop.dto.ProductPatchRequest.class)))
-        .thenReturn(partiallyUpdated);
+    when(productMapper.mapToProduct(any(ProductPatchRequest.class))).thenReturn(partiallyUpdated);
 
     mockMvc
         .perform(
@@ -189,9 +188,7 @@ class ProductControllerTest {
 
     when(productService.updateProductPartial(any(Long.class), any(Product.class)))
         .thenReturn(Optional.of(partiallyUpdated));
-    when(productMapper.mapToProduct(
-            any(com.hodol.han.samples.backend.shop.dto.ProductPatchRequest.class)))
-        .thenReturn(partiallyUpdated);
+    when(productMapper.mapToProduct(any(ProductPatchRequest.class))).thenReturn(partiallyUpdated);
 
     mockMvc
         .perform(patch("/api/products/1").contentType(MediaType.APPLICATION_JSON).content("{}"))
@@ -207,9 +204,7 @@ class ProductControllerTest {
 
     when(productService.updateProductPartial(any(Long.class), any(Product.class)))
         .thenReturn(Optional.of(partiallyUpdated));
-    when(productMapper.mapToProduct(
-            any(com.hodol.han.samples.backend.shop.dto.ProductPatchRequest.class)))
-        .thenReturn(partiallyUpdated);
+    when(productMapper.mapToProduct(any(ProductPatchRequest.class))).thenReturn(partiallyUpdated);
 
     mockMvc
         .perform(
