@@ -15,7 +15,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.hodol.han.samples.backend.shop.dto.ProductRequest;
 import com.hodol.han.samples.backend.shop.entity.Product;
+import com.hodol.han.samples.backend.shop.mapper.ProductMapper;
 import com.hodol.han.samples.backend.shop.service.ProductService;
 import java.util.Arrays;
 import java.util.Optional;
@@ -34,12 +36,18 @@ class ProductControllerTest {
   @Autowired private MockMvc mockMvc;
 
   @Autowired private ProductService productService;
+  @Autowired private ProductMapper productMapper;
 
   @TestConfiguration
   static class MockConfig {
     @Bean
     public ProductService productService() {
       return mock(ProductService.class);
+    }
+
+    @Bean
+    public ProductMapper productMapper() {
+      return mock(ProductMapper.class);
     }
   }
 
@@ -87,7 +95,7 @@ class ProductControllerTest {
     product.setName("New Product");
 
     when(productService.saveProduct(any(Product.class))).thenReturn(product);
-
+    when(productMapper.mapToProduct(any(ProductRequest.class))).thenReturn(product);
     mockMvc
         .perform(
             post("/api/products")
@@ -124,6 +132,7 @@ class ProductControllerTest {
 
     when(productService.updateProduct(any(Long.class), any(Product.class)))
         .thenReturn(Optional.of(updated));
+    when(productMapper.mapToProduct(any(ProductRequest.class))).thenReturn(updated);
 
     mockMvc
         .perform(
@@ -156,6 +165,9 @@ class ProductControllerTest {
 
     when(productService.updateProductPartial(any(Long.class), any(Product.class)))
         .thenReturn(Optional.of(partiallyUpdated));
+    when(productMapper.mapToProduct(
+            any(com.hodol.han.samples.backend.shop.dto.ProductPatchRequest.class)))
+        .thenReturn(partiallyUpdated);
 
     mockMvc
         .perform(
@@ -177,6 +189,9 @@ class ProductControllerTest {
 
     when(productService.updateProductPartial(any(Long.class), any(Product.class)))
         .thenReturn(Optional.of(partiallyUpdated));
+    when(productMapper.mapToProduct(
+            any(com.hodol.han.samples.backend.shop.dto.ProductPatchRequest.class)))
+        .thenReturn(partiallyUpdated);
 
     mockMvc
         .perform(patch("/api/products/1").contentType(MediaType.APPLICATION_JSON).content("{}"))
@@ -192,6 +207,9 @@ class ProductControllerTest {
 
     when(productService.updateProductPartial(any(Long.class), any(Product.class)))
         .thenReturn(Optional.of(partiallyUpdated));
+    when(productMapper.mapToProduct(
+            any(com.hodol.han.samples.backend.shop.dto.ProductPatchRequest.class)))
+        .thenReturn(partiallyUpdated);
 
     mockMvc
         .perform(

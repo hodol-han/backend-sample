@@ -3,23 +3,14 @@ package com.hodol.han.samples.backend.shop.mapper;
 import com.hodol.han.samples.backend.shop.dto.ProductPatchRequest;
 import com.hodol.han.samples.backend.shop.dto.ProductRequest;
 import com.hodol.han.samples.backend.shop.entity.Product;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
-public class ProductMapper {
-  public static Product mapToProduct(ProductRequest request) {
-    Product product = new Product();
-    product.setName(request.getName());
-    product.setDescription(request.getDescription());
-    product.setPrice(request.getPrice());
-    product.setStock(request.getStock());
-    return product;
-  }
+@Mapper(componentModel = "spring")
+public interface ProductMapper {
+  @Mapping(target = "id", ignore = true)
+  public Product mapToProduct(ProductRequest req);
 
-  public static Product mapToProduct(ProductPatchRequest request) {
-    Product product = new Product();
-    product.setName(request.getName());
-    product.setDescription(request.getDescription());
-    product.setPrice(request.getPrice());
-    product.setStock(request.getStock());
-    return product;
-  }
+  @Mapping(target = "id", ignore = true)
+  public Product mapToProduct(ProductPatchRequest req);
 }

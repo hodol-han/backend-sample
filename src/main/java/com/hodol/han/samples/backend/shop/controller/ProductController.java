@@ -24,12 +24,12 @@ import org.springframework.web.bind.annotation.RestController;
 public class ProductController {
 
   private final ProductService productService;
+  private final ProductMapper productMapper;
 
-  public ProductController(ProductService productService) {
+  public ProductController(ProductService productService, ProductMapper productMapper) {
     this.productService = productService;
+    this.productMapper = productMapper;
   }
-
-  // Mapping logic moved to ProductMapper class
 
   @GetMapping
   public List<Product> getAllProducts() {
@@ -44,14 +44,14 @@ public class ProductController {
 
   @PostMapping
   public Product createProduct(@Valid @RequestBody ProductRequest request) {
-    Product product = ProductMapper.mapToProduct(request);
+    Product product = productMapper.mapToProduct(request);
     return productService.saveProduct(product);
   }
 
   @PutMapping("/{id}")
   public ResponseEntity<Product> updateProduct(
       @PathVariable Long id, @Valid @RequestBody ProductRequest request) {
-    Product product = ProductMapper.mapToProduct(request);
+    Product product = productMapper.mapToProduct(request);
     Optional<Product> updatedProduct = productService.updateProduct(id, product);
     return updatedProduct
         .map(ResponseEntity::ok)
@@ -61,7 +61,7 @@ public class ProductController {
   @PatchMapping("/{id}")
   public ResponseEntity<Product> updateProductPartial(
       @PathVariable Long id, @RequestBody ProductPatchRequest request) {
-    Product product = ProductMapper.mapToProduct(request);
+    Product product = productMapper.mapToProduct(request);
     Optional<Product> updatedProduct = productService.updateProductPartial(id, product);
     return updatedProduct
         .map(ResponseEntity::ok)
