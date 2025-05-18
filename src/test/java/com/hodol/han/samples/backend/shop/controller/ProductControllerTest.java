@@ -1,6 +1,7 @@
 package com.hodol.han.samples.backend.shop.controller;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -91,9 +92,16 @@ class ProductControllerTest {
         .perform(
             post("/api/products")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"name\":\"New Product\"}"))
+                .content(
+                    """
+            {
+              "name": "New Product"
+            }
+            """))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.name").value("New Product"));
+
+    verify(productService, times(1)).saveProduct(argThat(p -> "New Product".equals(p.getName())));
   }
 
   @Test
