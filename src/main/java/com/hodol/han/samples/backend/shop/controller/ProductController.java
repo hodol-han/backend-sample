@@ -8,6 +8,7 @@ import com.hodol.han.samples.backend.shop.service.ProductService;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,10 +19,13 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping("/api/products")
 public class ProductController {
+
+  private static final String PRODUCT_NOT_FOUND_MESSAGE = "Product not found";
 
   private final ProductService productService;
   private final ProductMapper productMapper;
@@ -39,7 +43,10 @@ public class ProductController {
   @GetMapping("/{id}")
   public ResponseEntity<Product> getProductById(@PathVariable Long id) {
     Optional<Product> product = productService.getProductById(id);
-    return product.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    return product
+        .map(ResponseEntity::ok)
+        .orElseThrow(
+            () -> new ResponseStatusException(HttpStatus.NOT_FOUND, PRODUCT_NOT_FOUND_MESSAGE));
   }
 
   @PostMapping
@@ -55,7 +62,8 @@ public class ProductController {
     Optional<Product> updatedProduct = productService.updateProduct(id, product);
     return updatedProduct
         .map(ResponseEntity::ok)
-        .orElseGet(() -> ResponseEntity.notFound().build());
+        .orElseThrow(
+            () -> new ResponseStatusException(HttpStatus.NOT_FOUND, PRODUCT_NOT_FOUND_MESSAGE));
   }
 
   @PatchMapping("/{id}")
@@ -65,11 +73,16 @@ public class ProductController {
     Optional<Product> updatedProduct = productService.updateProductPartial(id, product);
     return updatedProduct
         .map(ResponseEntity::ok)
-        .orElseGet(() -> ResponseEntity.notFound().build());
+        .orElseThrow(
+            () -> new ResponseStatusException(HttpStatus.NOT_FOUND, PRODUCT_NOT_FOUND_MESSAGE));
   }
 
   @DeleteMapping("/{id}")
   public ResponseEntity<Void> deleteProduct(@PathVariable Long id) {
+    productService
+        .getProductById(id)
+        .orElseThrow(
+            () -> new ResponseStatusException(HttpStatus.NOT_FOUND, PRODUCT_NOT_FOUND_MESSAGE));
     productService.deleteProduct(id);
     return ResponseEntity.noContent().build();
   }
