@@ -5,7 +5,9 @@ public enum ErrorCode {
   TYPE_MISMATCH,
   INVALID_JSON,
   NOT_FOUND,
-  INTERNAL_ERROR;
+  INTERNAL_ERROR,
+  CONFLICT,
+  UNAUTHORIZED;
 
   @Override
   public String toString() {

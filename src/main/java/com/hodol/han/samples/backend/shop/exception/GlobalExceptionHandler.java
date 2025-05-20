@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -70,10 +71,26 @@ public class GlobalExceptionHandler {
     return ResponseEntity.status(ex.getStatusCode()).body(errorResponse);
   }
 
+  @ExceptionHandler(DuplicateUserException.class)
+  public ResponseEntity<ErrorResponse> handleDuplicateUserException(DuplicateUserException ex) {
+    ErrorResponse errorResponse = new ErrorResponse(ErrorCode.CONFLICT, ex.getMessage());
+    return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);
+  }
+
   @ExceptionHandler(ApiException.class)
   public ResponseEntity<ErrorResponse> handleApiException(ApiException ex) {
     ErrorResponse errorResponse = new ErrorResponse(ex.getErrorCode(), ex.getMessage());
+    if (ex.getErrorCode() == ErrorCode.CONFLICT) {
+      return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);
+    }
     return ResponseEntity.badRequest().body(errorResponse);
+  }
+
+  @ExceptionHandler(AuthenticationException.class)
+  public ResponseEntity<ErrorResponse> handleAuthenticationException(AuthenticationException ex) {
+    ErrorResponse errorResponse =
+        new ErrorResponse(ErrorCode.UNAUTHORIZED, "Invalid username or password");
+    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
   }
 
   @ExceptionHandler(Exception.class)
