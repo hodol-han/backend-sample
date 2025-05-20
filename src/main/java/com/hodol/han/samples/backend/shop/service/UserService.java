@@ -4,11 +4,14 @@ import com.hodol.han.samples.backend.shop.dto.UserSignupRequest;
 import com.hodol.han.samples.backend.shop.entity.User;
 import com.hodol.han.samples.backend.shop.exception.DuplicateUserException;
 import com.hodol.han.samples.backend.shop.repository.UserRepository;
+import jakarta.validation.Valid;
 import java.util.Collections;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 
 @Service
+@Validated
 public class UserService {
   private final UserRepository userRepository;
   private final PasswordEncoder passwordEncoder;
@@ -18,12 +21,14 @@ public class UserService {
     this.passwordEncoder = passwordEncoder;
   }
 
-  public User signup(UserSignupRequest request) {
-    if (userRepository.findByUsername(request.getUsername()).isPresent()) {
-      throw new DuplicateUserException(request.getUsername());
+  public User signup(@Valid UserSignupRequest request) {
+    String username = request.getUsername();
+
+    if (userRepository.findByUsername(username).isPresent()) {
+      throw new DuplicateUserException(username);
     }
     User user = new User();
-    user.setUsername(request.getUsername());
+    user.setUsername(username);
     user.setPassword(passwordEncoder.encode(request.getPassword()));
     user.setRoles(Collections.singleton("USER"));
     return userRepository.save(user);
