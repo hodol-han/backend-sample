@@ -25,6 +25,7 @@ import com.hodol.han.samples.backend.shop.service.ProductService;
 import java.util.Arrays;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -66,6 +67,7 @@ class ProductControllerTest {
   }
 
   @Test
+  @DisplayName("should return products when products exist")
   void testGetProducts() throws Exception {
     Product product1 = new Product();
     product1.setId(1L);
@@ -107,6 +109,7 @@ class ProductControllerTest {
   }
 
   @Test
+  @DisplayName("should return product by id when product exists")
   void testGetProductById() throws Exception {
     Product product = new Product();
     product.setId(1L);
@@ -121,6 +124,7 @@ class ProductControllerTest {
   }
 
   @Test
+  @DisplayName("should create product when request is valid")
   void testCreateProduct() throws Exception {
     Product product = new Product();
     product.setName("New Product");
@@ -144,6 +148,7 @@ class ProductControllerTest {
   }
 
   @Test
+  @DisplayName("should delete product when id is valid")
   void testDeleteProduct() throws Exception {
     doNothing().when(productService).deleteProduct(1L);
 
@@ -153,6 +158,7 @@ class ProductControllerTest {
   }
 
   @Test
+  @DisplayName("should update product when request is valid")
   void testUpdateProduct() throws Exception {
     Product updated = new Product();
     updated.setId(1L);
@@ -186,6 +192,7 @@ class ProductControllerTest {
   }
 
   @Test
+  @DisplayName("should update product partially when patch request is valid")
   void testUpdateProductPartial() throws Exception {
     Product partiallyUpdated = new Product();
     partiallyUpdated.setId(1L);
@@ -208,6 +215,7 @@ class ProductControllerTest {
   }
 
   @Test
+  @DisplayName("should update product partially with nulls")
   void testUpdateProductPartialWithNulls() throws Exception {
     Product partiallyUpdated = new Product();
     partiallyUpdated.setId(1L);
@@ -226,6 +234,7 @@ class ProductControllerTest {
   }
 
   @Test
+  @DisplayName("should update product partially with zero values")
   void testUpdateProductPartialWithZero() throws Exception {
     Product partiallyUpdated = new Product();
     partiallyUpdated.setId(1L);

@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.Locale;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.format.Parser;
 import org.springframework.format.Printer;
@@ -28,19 +29,22 @@ class TrimAnnotationFormatterFactoryTest {
   }
 
   @Test
-  void parseShouldTrimText() throws Exception {
+  @DisplayName("should trim text when parsing")
+  void testParseShouldTrimText() throws Exception {
     assertEquals("abc", parser.parse("  abc  ", locale));
     assertEquals("", parser.parse("", locale));
   }
 
   @Test
-  void printShouldReturnTextUnchanged() {
+  @DisplayName("should return text unchanged when printing")
+  void testPrintShouldReturnTextUnchanged() {
     assertEquals(" abc ", printer.print(" abc ", locale));
     assertEquals("", printer.print("", locale));
   }
 
   @Test
-  void getFieldTypesShouldContainString() {
+  @DisplayName("should contain String class in field types")
+  void testGetFieldTypesShouldContainString() {
     assertTrue(factory.getFieldTypes().contains(String.class));
   }
 }

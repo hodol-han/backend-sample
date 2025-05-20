@@ -11,6 +11,7 @@ import com.hodol.han.samples.backend.shop.controller.ProductController;
 import com.hodol.han.samples.backend.shop.mapper.ProductMapper;
 import com.hodol.han.samples.backend.shop.service.ProductService;
 import java.util.Optional;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -43,7 +44,8 @@ class GlobalExceptionHandlerTest {
   }
 
   @Test
-  void notFoundExceptionReturnsStandardErrorResponse() throws Exception {
+  @DisplayName("should return standard error response when product not found")
+  void testNotFoundExceptionReturnsStandardErrorResponse() throws Exception {
     when(productService.getProductById(anyLong())).thenReturn(Optional.empty());
     mockMvc
         .perform(get("/api/products/999"))
@@ -53,7 +55,8 @@ class GlobalExceptionHandlerTest {
   }
 
   @Test
-  void typeMismatchReturnsStandardErrorResponse() throws Exception {
+  @DisplayName("should return standard error response when type mismatch")
+  void testTypeMismatchReturnsStandardErrorResponse() throws Exception {
     mockMvc
         .perform(get("/api/products/abc"))
         .andExpect(status().isBadRequest())

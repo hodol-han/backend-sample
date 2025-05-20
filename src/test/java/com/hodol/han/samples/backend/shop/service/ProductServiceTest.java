@@ -14,6 +14,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -31,6 +32,7 @@ class ProductServiceTest {
   }
 
   @Test
+  @DisplayName("should return all products when products exist")
   void testGetAllProducts() {
     Product product1 = new Product();
     product1.setId(1L);
@@ -50,6 +52,7 @@ class ProductServiceTest {
   }
 
   @Test
+  @DisplayName("should return product by id when product exists")
   void testGetProductById() {
     Product product = new Product();
     product.setId(1L);
@@ -64,6 +67,7 @@ class ProductServiceTest {
   }
 
   @Test
+  @DisplayName("should save product when product is valid")
   void testSaveProduct() {
     Product product = new Product();
     product.setName("New Product");
@@ -77,6 +81,7 @@ class ProductServiceTest {
   }
 
   @Test
+  @DisplayName("should delete product when id is valid")
   void testDeleteProduct() {
     Long productId = 1L;
 
@@ -88,6 +93,7 @@ class ProductServiceTest {
   }
 
   @Test
+  @DisplayName("should update product when update is valid")
   void testUpdateProduct() {
     Product existing = new Product();
     existing.setId(1L);
@@ -115,6 +121,7 @@ class ProductServiceTest {
   }
 
   @Test
+  @DisplayName("should update product partially when patch is valid")
   void testUpdateProductPartial() {
     Product existing = new Product();
     existing.setId(1L);

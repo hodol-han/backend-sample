@@ -29,7 +29,7 @@ class CustomUserDetailsServiceTest {
   }
 
   @Test
-  @DisplayName("Should return UserDetails when user exists")
+  @DisplayName("should return UserDetails when user exists")
   void testLoadUserByUsernameSuccess() {
     User user = new User();
     user.setUsername("testuser");
@@ -46,7 +46,7 @@ class CustomUserDetailsServiceTest {
   }
 
   @Test
-  @DisplayName("Should throw UsernameNotFoundException when user does not exist")
+  @DisplayName("should throw UsernameNotFoundException when user does not exist")
   void testLoadUserByUsernameNotFound() {
     when(userRepository.findByUsername("nouser")).thenReturn(Optional.empty());
     assertThrows(
@@ -55,7 +55,7 @@ class CustomUserDetailsServiceTest {
   }
 
   @Test
-  @DisplayName("Should return empty authorities if user roles is null")
+  @DisplayName("should return empty authorities if user roles is null")
   void testLoadUserByUsernameWithNullRoles() {
     User user = new User();
     user.setUsername("testuser");
@@ -69,7 +69,7 @@ class CustomUserDetailsServiceTest {
   }
 
   @Test
-  @DisplayName("Should return empty authorities if user roles is empty")
+  @DisplayName("should return empty authorities if user roles is empty")
   void testLoadUserByUsernameWithEmptyRoles() {
     User user = new User();
     user.setUsername("testuser");
@@ -83,7 +83,7 @@ class CustomUserDetailsServiceTest {
   }
 
   @Test
-  @DisplayName("Should trim username and find user")
+  @DisplayName("should trim username and find user")
   void testLoadUserByUsernameWithTrimmedInput() {
     User user = new User();
     user.setUsername("testuser");
@@ -97,7 +97,7 @@ class CustomUserDetailsServiceTest {
   }
 
   @Test
-  @DisplayName("Should handle user with multiple roles")
+  @DisplayName("should handle user with multiple roles")
   void testLoadUserByUsernameWithMultipleRoles() {
     User user = new User();
     user.setUsername("admin");

@@ -17,6 +17,7 @@ import com.hodol.han.samples.backend.shop.security.JwtTokenProvider;
 import java.util.Optional;
 import java.util.Set;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
@@ -78,6 +79,7 @@ class AuthControllerTest {
   }
 
   @Test
+  @DisplayName("should signup user when request is valid")
   void testSignupSuccess() throws Exception {
     UserSignupRequest req = new UserSignupRequest();
     req.setUsername("testuser");
@@ -92,6 +94,7 @@ class AuthControllerTest {
   }
 
   @Test
+  @DisplayName("should return token when login is successful")
   void testLoginSuccess() throws Exception {
     String username = "testuser";
     String password = "testpass";
@@ -117,6 +120,7 @@ class AuthControllerTest {
   }
 
   @Test
+  @DisplayName("should return unauthorized when login fails")
   void testLoginFail() throws Exception {
     String json =
         """
@@ -130,6 +134,7 @@ class AuthControllerTest {
   }
 
   @Test
+  @DisplayName("should return conflict when signup with duplicate username")
   void testSignupDuplicateUsernameFail() throws Exception {
     // Simulate duplicate username signup failure
     Mockito.doThrow(
@@ -146,6 +151,7 @@ class AuthControllerTest {
   }
 
   @Test
+  @DisplayName("should return unauthorized when login with nonexistent user")
   void testLoginNonexistentUserFail() throws Exception {
     // Simulate login failure when user does not exist
     Mockito.when(authenticationManager.authenticate(Mockito.any()))
@@ -161,6 +167,7 @@ class AuthControllerTest {
   }
 
   @Test
+  @DisplayName("should return unauthorized when login with wrong password")
   void testLoginWrongPasswordFail() throws Exception {
     // Simulate login failure due to wrong password
     Mockito.when(authenticationManager.authenticate(Mockito.any()))
@@ -175,6 +182,7 @@ class AuthControllerTest {
   }
 
   @Test
+  @DisplayName("should return bad request when signup validation fails")
   void testSignupValidationFail() throws Exception {
     // Simulate signup validation failure (empty username and password)
     String json =
@@ -187,6 +195,7 @@ class AuthControllerTest {
   }
 
   @Test
+  @DisplayName("should trim username when signup")
   void testSignupTrimUsername() throws Exception {
     String json =
         """
@@ -201,6 +210,7 @@ class AuthControllerTest {
   }
 
   @Test
+  @DisplayName("should trim username when login")
   void testLoginTrimUsername() throws Exception {
     String token = "jwt.token.trim";
     Authentication mockAuth = Mockito.mock(Authentication.class);
