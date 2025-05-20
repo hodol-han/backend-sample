@@ -68,7 +68,7 @@ class AuthControllerTest {
   }
 
   @Test
-  void signup_success() throws Exception {
+  void testSignupSuccess() throws Exception {
     UserSignupRequest req = new UserSignupRequest();
     req.setUsername("testuser");
     req.setPassword("testpass");
@@ -82,7 +82,7 @@ class AuthControllerTest {
   }
 
   @Test
-  void login_success() throws Exception {
+  void testLoginSuccess() throws Exception {
     String username = "testuser";
     String password = "testpass";
     String token = "jwt.token.here";
@@ -107,7 +107,7 @@ class AuthControllerTest {
   }
 
   @Test
-  void login_fail() throws Exception {
+  void testLoginFail() throws Exception {
     String json =
         """
       {"username":"nouser","password":"wrong"}
@@ -120,7 +120,7 @@ class AuthControllerTest {
   }
 
   @Test
-  void signup_duplicate_username_fail() throws Exception {
+  void testSignupDuplicateUsernameFail() throws Exception {
     // Simulate duplicate username signup failure
     Mockito.doThrow(
             new com.hodol.han.samples.backend.shop.exception.DuplicateUserException("testuser"))
@@ -136,7 +136,7 @@ class AuthControllerTest {
   }
 
   @Test
-  void login_nonexistent_user_fail() throws Exception {
+  void testLoginNonexistentUserFail() throws Exception {
     // Simulate login failure when user does not exist
     Mockito.when(authenticationManager.authenticate(Mockito.any()))
         .thenReturn(Mockito.mock(Authentication.class));
@@ -151,7 +151,7 @@ class AuthControllerTest {
   }
 
   @Test
-  void login_wrong_password_fail() throws Exception {
+  void testLoginWrongPasswordFail() throws Exception {
     // Simulate login failure due to wrong password
     Mockito.when(authenticationManager.authenticate(Mockito.any()))
         .thenThrow(new AuthenticationException("bad credentials") {});
@@ -165,7 +165,7 @@ class AuthControllerTest {
   }
 
   @Test
-  void signup_validation_fail() throws Exception {
+  void testSignupValidationFail() throws Exception {
     // Simulate signup validation failure (empty username and password)
     String json =
         """
