@@ -1,9 +1,10 @@
 package com.hodol.han.samples.backend.shop.dto;
 
+import com.hodol.han.samples.backend.shop.validation.Trim;
 import jakarta.validation.constraints.NotBlank;
 
 public class UserLoginRequest {
-  @NotBlank private String username;
+  @Trim @NotBlank private String username;
   @NotBlank private String password;
 
   // Getters and Setters
