@@ -13,12 +13,16 @@ import com.hodol.han.samples.backend.shop.service.ProductService;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(ProductController.class)
+// Disabling security filters to focus on testing exception handling logic without
+// authentication/authorization concerns.
+@AutoConfigureMockMvc(addFilters = false)
 class GlobalExceptionHandlerTest {
 
   @Autowired private MockMvc mockMvc;
