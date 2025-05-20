@@ -1,9 +1,15 @@
 package com.hodol.han.samples.backend.shop.controller;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.hodol.han.samples.backend.shop.config.JacksonConfig;
+import com.hodol.han.samples.backend.shop.config.WebConfig;
 import com.hodol.han.samples.backend.shop.dto.UserSignupRequest;
 import com.hodol.han.samples.backend.shop.entity.User;
 import com.hodol.han.samples.backend.shop.repository.UserRepository;
@@ -12,20 +18,24 @@ import java.util.Optional;
 import java.util.Set;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(AuthController.class)
+@Import({JacksonConfig.class, WebConfig.class})
 @AutoConfigureMockMvc(addFilters = false)
 class AuthControllerTest {
   @Autowired private MockMvc mockMvc;
@@ -64,7 +74,7 @@ class AuthControllerTest {
 
   @AfterEach
   void resetMocks() {
-    Mockito.reset(authenticationManager, userRepository, jwtTokenProvider);
+    Mockito.reset(authenticationManager, userRepository, jwtTokenProvider, userService);
   }
 
   @Test
@@ -174,5 +184,50 @@ class AuthControllerTest {
     mockMvc
         .perform(post("/api/auth/signup").contentType(MediaType.APPLICATION_JSON).content(json))
         .andExpect(status().isBadRequest());
+  }
+
+  @Test
+  void testSignupTrimUsername() throws Exception {
+    String json =
+        """
+      {"username":"  testuser  ","password":"testpass"}
+    """;
+    mockMvc
+        .perform(post("/api/auth/signup").contentType(MediaType.APPLICATION_JSON).content(json))
+        .andExpect(status().isOk());
+    ArgumentCaptor<UserSignupRequest> captor = ArgumentCaptor.forClass(UserSignupRequest.class);
+    verify(userService).signup(captor.capture());
+    assertEquals("testuser", captor.getValue().getUsername());
+  }
+
+  @Test
+  void testLoginTrimUsername() throws Exception {
+    String token = "jwt.token.trim";
+    Authentication mockAuth = Mockito.mock(Authentication.class);
+    Mockito.when(mockAuth.getName()).thenReturn("testuser");
+    Mockito.when(authenticationManager.authenticate(Mockito.any())).thenReturn(mockAuth);
+    User user = new User();
+    user.setUsername("testuser");
+    user.setPassword("pass");
+    user.setRoles(Set.of("USER"));
+    Mockito.when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(user));
+    Mockito.when(jwtTokenProvider.createToken(anyString(), any())).thenReturn(token);
+
+    String json =
+        """
+      {"username":"  testuser  ","password":"pass"}
+    """;
+    mockMvc
+        .perform(post("/api/auth/login").contentType(MediaType.APPLICATION_JSON).content(json))
+        .andExpect(status().isOk())
+        .andExpect(content().string(token));
+
+    ArgumentCaptor<UsernamePasswordAuthenticationToken> authCaptor =
+        ArgumentCaptor.forClass(UsernamePasswordAuthenticationToken.class);
+    verify(authenticationManager).authenticate(authCaptor.capture());
+    UsernamePasswordAuthenticationToken arg = authCaptor.getValue();
+    assertEquals("testuser", arg.getPrincipal());
+    assertEquals("pass", arg.getCredentials());
+    verify(userRepository).findByUsername("testuser");
   }
 }

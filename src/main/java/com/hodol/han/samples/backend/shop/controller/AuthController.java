@@ -42,11 +42,13 @@ public class AuthController {
 
   @PostMapping("/login")
   public ResponseEntity<?> login(@Valid @RequestBody UserLoginRequest request) {
+    String username = request.getUsername();
+
     authenticationManager.authenticate(
-        new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
+        new UsernamePasswordAuthenticationToken(username, request.getPassword()));
     User user =
         userRepository
-            .findByUsername(request.getUsername())
+            .findByUsername(username)
             .orElseThrow(
                 () ->
                     new org.springframework.security.authentication.BadCredentialsException(
