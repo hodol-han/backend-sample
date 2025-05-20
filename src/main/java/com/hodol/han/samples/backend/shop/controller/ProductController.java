@@ -1,5 +1,7 @@
 package com.hodol.han.samples.backend.shop.controller;
 
+import com.hodol.han.samples.backend.shop.dto.PagedResponse;
+import com.hodol.han.samples.backend.shop.dto.ProductDto;
 import com.hodol.han.samples.backend.shop.dto.ProductPatchRequest;
 import com.hodol.han.samples.backend.shop.dto.ProductRequest;
 import com.hodol.han.samples.backend.shop.entity.Product;
@@ -8,6 +10,7 @@ import com.hodol.han.samples.backend.shop.service.ProductService;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -18,6 +21,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -36,8 +40,21 @@ public class ProductController {
   }
 
   @GetMapping
-  public List<Product> getAllProducts() {
-    return productService.getAllProducts();
+  public ResponseEntity<PagedResponse<ProductDto>> listProducts(
+      @RequestParam(required = false) String q,
+      @RequestParam(defaultValue = "0") int page,
+      @RequestParam(defaultValue = "10") int size,
+      @RequestParam(defaultValue = "id") String sortBy,
+      @RequestParam(defaultValue = "false") boolean asc) {
+
+    Page<Product> result = productService.searchProducts(q, page, size, sortBy, asc);
+
+    List<ProductDto> products =
+        result.getContent().stream().map(productMapper::mapToProductDto).toList();
+
+    return ResponseEntity.ok(
+        new PagedResponse<>(
+            products, result.getNumber(), result.getSize(), result.getTotalElements()));
   }
 
   @GetMapping("/{id}")

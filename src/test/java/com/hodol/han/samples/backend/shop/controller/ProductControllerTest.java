@@ -2,6 +2,7 @@ package com.hodol.han.samples.backend.shop.controller;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -15,6 +16,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.hodol.han.samples.backend.shop.dto.ProductDto;
 import com.hodol.han.samples.backend.shop.dto.ProductPatchRequest;
 import com.hodol.han.samples.backend.shop.dto.ProductRequest;
 import com.hodol.han.samples.backend.shop.entity.Product;
@@ -28,6 +30,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -58,7 +62,7 @@ class ProductControllerTest {
   }
 
   @Test
-  void testGetAllProducts() throws Exception {
+  void testGetProducts() throws Exception {
     Product product1 = new Product();
     product1.setId(1L);
     product1.setName("Product 1");
@@ -67,13 +71,35 @@ class ProductControllerTest {
     product2.setId(2L);
     product2.setName("Product 2");
 
-    when(productService.getAllProducts()).thenReturn(Arrays.asList(product1, product2));
+    Page<Product> expected = new PageImpl<>(Arrays.asList(product1, product2));
+
+    when(productService.searchProducts(
+            eq(null),
+            any(Integer.class),
+            any(Integer.class),
+            any(String.class),
+            any(Boolean.class)))
+        .thenReturn(expected);
+
+    when(productMapper.mapToProductDto(any(Product.class)))
+        .thenAnswer(
+            invocation -> {
+              Product src = invocation.getArgument(0);
+              ProductDto dto =
+                  new ProductDto(
+                      src.getId(),
+                      src.getName(),
+                      src.getDescription(),
+                      src.getPrice(),
+                      src.getStock());
+              return dto;
+            });
 
     mockMvc
         .perform(get("/api/products"))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$[0].name").value("Product 1"))
-        .andExpect(jsonPath("$[1].name").value("Product 2"));
+        .andExpect(jsonPath("$.content[0].name").value("Product 1"))
+        .andExpect(jsonPath("$.content[1].name").value("Product 2"));
   }
 
   @Test

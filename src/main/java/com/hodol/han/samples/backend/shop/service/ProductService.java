@@ -4,6 +4,11 @@ import com.hodol.han.samples.backend.shop.entity.Product;
 import com.hodol.han.samples.backend.shop.repository.ProductRepository;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -63,5 +68,37 @@ public class ProductService {
               }
               return productRepository.save(existingProduct);
             });
+  }
+
+  public Page<Product> searchProducts(
+      String keyword, int page, int size, String sortBy, boolean asc) {
+
+    Sort sort = Sort.by(sortBy);
+
+    if (!asc) {
+      sort = sort.descending();
+    }
+
+    Pageable pageable = PageRequest.of(page, size, sort);
+    return searchProducts(keyword, pageable);
+  }
+
+  public Page<Product> searchProducts(String keyword, Pageable pageable) {
+    return productRepository.findAll(byNameOrDescription(keyword), pageable);
+  }
+
+  private Specification<Product> byNameOrDescription(String keyword) {
+    String pattern = buildSearchPattern(keyword);
+    return (root, query, criteriaBuilder) ->
+        criteriaBuilder.or(
+            criteriaBuilder.like(root.get("name"), pattern, '\\'),
+            criteriaBuilder.like(root.get("description"), pattern, '\\'));
+  }
+
+  private static String buildSearchPattern(String keyword) {
+    if (keyword == null) return "%%";
+    String escapedKeyword =
+        keyword.trim().replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_");
+    return "%" + escapedKeyword + "%";
   }
 }

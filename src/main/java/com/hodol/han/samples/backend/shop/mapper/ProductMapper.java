@@ -1,5 +1,6 @@
 package com.hodol.han.samples.backend.shop.mapper;
 
+import com.hodol.han.samples.backend.shop.dto.ProductDto;
 import com.hodol.han.samples.backend.shop.dto.ProductPatchRequest;
 import com.hodol.han.samples.backend.shop.dto.ProductRequest;
 import com.hodol.han.samples.backend.shop.entity.Product;
@@ -13,4 +14,6 @@ public interface ProductMapper {
 
   @Mapping(target = "id", ignore = true)
   public Product mapToProduct(ProductPatchRequest req);
+
+  public ProductDto mapToProductDto(Product product);
 }
