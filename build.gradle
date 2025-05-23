@@ -47,6 +47,9 @@ tasks.withType(JavaCompile) {
 }
 
 spotless {
+  // Don't run Spotless on every build; instead, enforce it on commit using a pre-commit hook.
+  enforceCheck false
+
   groovyGradle {
     target '*.gradle'
     greclipse().configFile('spotless-groovy.properties')
