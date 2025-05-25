@@ -27,3 +27,10 @@ repos:
       name: Spotless changed files only
       entry: tools/apply-spotless.sh
       language: script
+    - id: gradle-sort-dependencies
+      name: Sort Gradle dependencies
+      # Note this applies to all Gradle files, not just the changed ones.
+      entry: ./gradlew sortDependencies
+      language: script
+      pass_filenames: false
+      files: .*\.gradle$
