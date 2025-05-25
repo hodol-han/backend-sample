@@ -9,7 +9,6 @@ import com.hodol.han.samples.backend.shop.mapper.ProductMapper;
 import com.hodol.han.samples.backend.shop.service.ProductService;
 import jakarta.validation.Valid;
 import java.util.List;
-import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -48,7 +47,6 @@ public class ProductController {
       @RequestParam(defaultValue = "false") boolean asc) {
 
     Page<Product> result = productService.searchProducts(q, page, size, sortBy, asc);
-
     List<ProductDto> products =
         result.getContent().stream().map(productMapper::mapToProductDto).toList();
 
@@ -58,40 +56,46 @@ public class ProductController {
   }
 
   @GetMapping("/{id}")
-  public ResponseEntity<Product> getProductById(@PathVariable Long id) {
-    Optional<Product> product = productService.getProductById(id);
-    return product
-        .map(ResponseEntity::ok)
-        .orElseThrow(
-            () -> new ResponseStatusException(HttpStatus.NOT_FOUND, PRODUCT_NOT_FOUND_MESSAGE));
+  public ResponseEntity<ProductDto> getProductById(@PathVariable Long id) {
+    ProductDto dto =
+        productService
+            .getProductById(id)
+            .map(productMapper::mapToProductDto)
+            .orElseThrow(
+                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, PRODUCT_NOT_FOUND_MESSAGE));
+    return ResponseEntity.ok(dto);
   }
 
   @PostMapping
-  public Product createProduct(@Valid @RequestBody ProductRequest request) {
+  public ResponseEntity<ProductDto> createProduct(@Valid @RequestBody ProductRequest request) {
     Product product = productMapper.mapToProduct(request);
-    return productService.saveProduct(product);
+    Product saved = productService.saveProduct(product);
+    ProductDto dto = productMapper.mapToProductDto(saved);
+    return ResponseEntity.ok(dto);
   }
 
   @PutMapping("/{id}")
-  public ResponseEntity<Product> updateProduct(
+  public ResponseEntity<ProductDto> updateProduct(
       @PathVariable Long id, @Valid @RequestBody ProductRequest request) {
-    Product product = productMapper.mapToProduct(request);
-    Optional<Product> updatedProduct = productService.updateProduct(id, product);
-    return updatedProduct
-        .map(ResponseEntity::ok)
-        .orElseThrow(
-            () -> new ResponseStatusException(HttpStatus.NOT_FOUND, PRODUCT_NOT_FOUND_MESSAGE));
+    ProductDto dto =
+        productService
+            .updateProduct(id, productMapper.mapToProduct(request))
+            .map(productMapper::mapToProductDto)
+            .orElseThrow(
+                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, PRODUCT_NOT_FOUND_MESSAGE));
+    return ResponseEntity.ok(dto);
   }
 
   @PatchMapping("/{id}")
-  public ResponseEntity<Product> updateProductPartial(
+  public ResponseEntity<ProductDto> updateProductPartial(
       @PathVariable Long id, @RequestBody ProductPatchRequest request) {
-    Product product = productMapper.mapToProduct(request);
-    Optional<Product> updatedProduct = productService.updateProductPartial(id, product);
-    return updatedProduct
-        .map(ResponseEntity::ok)
-        .orElseThrow(
-            () -> new ResponseStatusException(HttpStatus.NOT_FOUND, PRODUCT_NOT_FOUND_MESSAGE));
+    ProductDto dto =
+        productService
+            .updateProductPartial(id, productMapper.mapToProduct(request))
+            .map(productMapper::mapToProductDto)
+            .orElseThrow(
+                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, PRODUCT_NOT_FOUND_MESSAGE));
+    return ResponseEntity.ok(dto);
   }
 
   @DeleteMapping("/{id}")

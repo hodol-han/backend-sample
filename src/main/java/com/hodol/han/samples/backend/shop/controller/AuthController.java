@@ -35,13 +35,13 @@ public class AuthController {
   }
 
   @PostMapping("/signup")
-  public ResponseEntity<?> signup(@Valid @RequestBody UserSignupRequest request) {
+  public ResponseEntity<Void> signup(@Valid @RequestBody UserSignupRequest request) {
     userService.signup(request);
     return ResponseEntity.ok().build();
   }
 
   @PostMapping("/login")
-  public ResponseEntity<?> login(@Valid @RequestBody UserLoginRequest request) {
+  public ResponseEntity<String> login(@Valid @RequestBody UserLoginRequest request) {
     String username = request.getUsername();
 
     authenticationManager.authenticate(
@@ -54,6 +54,6 @@ public class AuthController {
                     new org.springframework.security.authentication.BadCredentialsException(
                         "Invalid username or password"));
     String token = jwtTokenProvider.createToken(user.getUsername(), user.getRoles());
-    return ResponseEntity.ok().body(token);
+    return ResponseEntity.ok(token);
   }
 }

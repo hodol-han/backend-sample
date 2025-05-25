@@ -64,6 +64,14 @@ class ProductControllerTest {
   @BeforeEach
   void setUp() {
     // Removed manual MockMvc configuration as @WebMvcTest provides MockMvc automatically.
+    // Default mapping for Product to ProductDto
+    when(productMapper.mapToProductDto(any(Product.class)))
+        .thenAnswer(
+            invocation -> {
+              Product p = invocation.getArgument(0);
+              return new ProductDto(
+                  p.getId(), p.getName(), p.getDescription(), p.getPrice(), p.getStock());
+            });
   }
 
   @Test
