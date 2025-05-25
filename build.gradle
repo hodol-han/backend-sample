@@ -6,6 +6,10 @@ plugins {
   id("org.springdoc.openapi-gradle-plugin") version "1.9.0"
 }
 
+ext {
+  googleJavaFormatVersion = '1.27.0'
+}
+
 group = 'com.hodol.han.samples.backend'
 version = '0.0.1-SNAPSHOT'
 
@@ -34,6 +38,7 @@ dependencies {
   testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
   // Scoped for development only
+  compileOnly 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.8'
   developmentOnly 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.8'
 }
 
@@ -52,7 +57,7 @@ tasks.withType(JavaCompile) {
 
 spotless {
   // Don't run Spotless on every build; instead, enforce it on commit using a pre-commit hook.
-  enforceCheck false
+  enforceCheck = false
 
   groovyGradle {
     target '*.gradle'
@@ -60,8 +65,8 @@ spotless {
   }
 
   java {
-    importOrder()
+    importOrder('java', 'javax', 'org', 'com')
     removeUnusedImports()
-    googleJavaFormat()
+    googleJavaFormat(googleJavaFormatVersion)
   }
 }
