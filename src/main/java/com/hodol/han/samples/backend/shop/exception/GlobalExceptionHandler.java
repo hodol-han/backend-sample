@@ -1,6 +1,7 @@
 package com.hodol.han.samples.backend.shop.exception;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -99,5 +100,17 @@ public class GlobalExceptionHandler {
     String message = "Internal server error occurred.";
     ErrorResponse errorResponse = new ErrorResponse(ErrorCode.INTERNAL_ERROR, message);
     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+  }
+
+  @ExceptionHandler(NoSuchElementException.class)
+  public ResponseEntity<ErrorResponse> handleNoSuchElementException(NoSuchElementException ex) {
+    ErrorResponse errorResponse = new ErrorResponse(ErrorCode.NOT_FOUND, ex.getMessage());
+    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+  }
+
+  @ExceptionHandler(IllegalArgumentException.class)
+  public ResponseEntity<ErrorResponse> handleIllegalArgumentException(IllegalArgumentException ex) {
+    ErrorResponse errorResponse = new ErrorResponse(ErrorCode.VALIDATION_ERROR, ex.getMessage());
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
   }
 }
