@@ -1,8 +1,6 @@
 package com.hodol.han.samples.backend.shop.controller;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -12,9 +10,8 @@ import com.hodol.han.samples.backend.shop.config.JacksonConfig;
 import com.hodol.han.samples.backend.shop.config.WebConfig;
 import com.hodol.han.samples.backend.shop.dto.UserSignupRequest;
 import com.hodol.han.samples.backend.shop.entity.User;
-import com.hodol.han.samples.backend.shop.repository.UserRepository;
 import com.hodol.han.samples.backend.shop.security.JwtTokenProvider;
-import java.util.Optional;
+import com.hodol.han.samples.backend.shop.service.UserService;
 import java.util.Set;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
@@ -42,14 +39,13 @@ class AuthControllerTest {
   @Autowired private MockMvc mockMvc;
   @Autowired private JwtTokenProvider jwtTokenProvider;
   @Autowired private AuthenticationManager authenticationManager;
-  @Autowired private UserRepository userRepository;
-  @Autowired private com.hodol.han.samples.backend.shop.service.UserService userService;
+  @Autowired private UserService userService;
 
   @TestConfiguration
   static class MockConfig {
     @Bean
-    public com.hodol.han.samples.backend.shop.service.UserService userService() {
-      return Mockito.mock(com.hodol.han.samples.backend.shop.service.UserService.class);
+    public UserService userService() {
+      return Mockito.mock(UserService.class);
     }
 
     @Bean
@@ -63,11 +59,6 @@ class AuthControllerTest {
     }
 
     @Bean
-    public UserRepository userRepository() {
-      return Mockito.mock(UserRepository.class);
-    }
-
-    @Bean
     public PasswordEncoder passwordEncoder() {
       return Mockito.mock(PasswordEncoder.class);
     }
@@ -75,7 +66,7 @@ class AuthControllerTest {
 
   @AfterEach
   void resetMocks() {
-    Mockito.reset(authenticationManager, userRepository, jwtTokenProvider, userService);
+    Mockito.reset(authenticationManager, jwtTokenProvider, userService);
   }
 
   @Test
@@ -106,9 +97,7 @@ class AuthControllerTest {
     Authentication mockAuth = Mockito.mock(Authentication.class);
     Mockito.when(mockAuth.getName()).thenReturn(username);
     Mockito.when(authenticationManager.authenticate(Mockito.any())).thenReturn(mockAuth);
-    Mockito.when(userRepository.findByUsername(Mockito.anyString())).thenReturn(Optional.of(user));
-    Mockito.when(jwtTokenProvider.createToken(Mockito.anyString(), Mockito.anySet()))
-        .thenReturn(token);
+    Mockito.when(jwtTokenProvider.generateToken(mockAuth)).thenReturn(token);
     String json =
         """
       {"username":"testuser","password":"testpass"}
@@ -155,8 +144,7 @@ class AuthControllerTest {
   void testLoginNonexistentUserFail() throws Exception {
     // Simulate login failure when user does not exist
     Mockito.when(authenticationManager.authenticate(Mockito.any()))
-        .thenReturn(Mockito.mock(Authentication.class));
-    Mockito.when(userRepository.findByUsername(Mockito.anyString())).thenReturn(Optional.empty());
+        .thenThrow(new AuthenticationException("nonexistent user") {});
     String json =
         """
       {"username":"nouser","password":"testpass"}
@@ -220,8 +208,7 @@ class AuthControllerTest {
     user.setUsername("testuser");
     user.setPassword("pass");
     user.setRoles(Set.of("USER"));
-    Mockito.when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(user));
-    Mockito.when(jwtTokenProvider.createToken(anyString(), any())).thenReturn(token);
+    Mockito.when(jwtTokenProvider.generateToken(mockAuth)).thenReturn(token);
 
     String json =
         """
@@ -238,6 +225,5 @@ class AuthControllerTest {
     UsernamePasswordAuthenticationToken arg = authCaptor.getValue();
     assertEquals("testuser", arg.getPrincipal());
     assertEquals("pass", arg.getCredentials());
-    verify(userRepository).findByUsername("testuser");
   }
 }

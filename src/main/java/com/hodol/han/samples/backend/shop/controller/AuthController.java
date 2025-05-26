@@ -2,14 +2,13 @@ package com.hodol.han.samples.backend.shop.controller;
 
 import com.hodol.han.samples.backend.shop.dto.UserLoginRequest;
 import com.hodol.han.samples.backend.shop.dto.UserSignupRequest;
-import com.hodol.han.samples.backend.shop.entity.User;
-import com.hodol.han.samples.backend.shop.repository.UserRepository;
 import com.hodol.han.samples.backend.shop.security.JwtTokenProvider;
 import com.hodol.han.samples.backend.shop.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,17 +20,14 @@ public class AuthController {
   private final UserService userService;
   private final JwtTokenProvider jwtTokenProvider;
   private final AuthenticationManager authenticationManager;
-  private final UserRepository userRepository;
 
   public AuthController(
       UserService userService,
       JwtTokenProvider jwtTokenProvider,
-      AuthenticationManager authenticationManager,
-      UserRepository userRepository) {
+      AuthenticationManager authenticationManager) {
     this.userService = userService;
     this.jwtTokenProvider = jwtTokenProvider;
     this.authenticationManager = authenticationManager;
-    this.userRepository = userRepository;
   }
 
   @PostMapping("/signup")
@@ -44,16 +40,11 @@ public class AuthController {
   public ResponseEntity<String> login(@Valid @RequestBody UserLoginRequest request) {
     String username = request.getUsername();
 
-    authenticationManager.authenticate(
-        new UsernamePasswordAuthenticationToken(username, request.getPassword()));
-    User user =
-        userRepository
-            .findByUsername(username)
-            .orElseThrow(
-                () ->
-                    new org.springframework.security.authentication.BadCredentialsException(
-                        "Invalid username or password"));
-    String token = jwtTokenProvider.createToken(user.getUsername(), user.getRoles());
+    Authentication auth =
+        authenticationManager.authenticate(
+            new UsernamePasswordAuthenticationToken(username, request.getPassword()));
+
+    String token = jwtTokenProvider.generateToken(auth);
     return ResponseEntity.ok(token);
   }
 }

@@ -6,9 +6,12 @@ import io.jsonwebtoken.security.Keys;
 import java.security.Key;
 import java.util.Date;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -25,7 +28,13 @@ public class JwtTokenProvider {
 
   private final long validityInMilliseconds = 1000 * 60 * 60; // 1 hour
 
-  public String createToken(String username, Set<String> roles) {
+  public String generateToken(Authentication authentication) {
+    String username = authentication.getName();
+    Set<String> roles =
+        authentication.getAuthorities().stream()
+            .map(GrantedAuthority::getAuthority)
+            .collect(Collectors.toSet());
+
     Claims claims = Jwts.claims().setSubject(username);
     claims.put("roles", roles);
     Date now = new Date();
